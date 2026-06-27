@@ -1,0 +1,6 @@
+[submodule "client"]
+	path = client
+	url = https://github.com/09satishgs/sync-pad-frontend.git
+[submodule "server"]
+	path = server
+	url = https://github.com/09satishgs/sync-pad-backend.git
