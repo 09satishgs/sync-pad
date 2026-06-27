@@ -1,0 +1,41 @@
+name: Sync Submodules
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout parent repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: true
+          fetch-depth: 0
+
+      - name: Pull latest commits for submodules
+        run: |
+          git submodule update --init --recursive
+          git submodule update --remote --merge
+
+      - name: Check for changes & push
+        run: |
+          # Configure git for the bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are changes to commit
+          if [ -n "$(git status --porcelain)" ]; then
+            git add client server
+            git commit -m "chore(deps): auto-update submodules to latest commits"
+            git push origin main
+          else
+            echo "No changes detected in submodules."
+          fi
